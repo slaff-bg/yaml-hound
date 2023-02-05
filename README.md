@@ -29,6 +29,7 @@ Sometimes it is necessary to handle frequently modified YAML structures. This is
 ## Features ##
 
 - [ ] Retrieves a value by key or series of known keys from an unknown dynamic YAML structure.
+- [ ] N-level keys ripper.
 - [ ] etc.
 
 
