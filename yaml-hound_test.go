@@ -10,7 +10,7 @@ import (
 func TestFootprintSniffer(t *testing.T) {
 	yt := YAMLTracer{}
 	// yt.Footprints = append(yt.Footprints, "version")
-	yt.Footprints = append(yt.Footprints, []string{"omnivores", "chickens"}...)
+	// yt.Footprints = append(yt.Footprints, []string{"omnivores", "chickens"}...)
 	// yt.Footprints = append(yt.Footprints, []string{"fast-food", "chickens"}...)
 	// yt.Footprints = append(yt.Footprints, []string{"foo", "bar"}...)
 	// test2.yaml

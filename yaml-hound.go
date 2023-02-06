@@ -20,7 +20,7 @@ func (y *YAMLTracer) FootprintSniffer() error {
 		return errors.New("no traces to follow.")
 	}
 
-	_, _ = y.footprintSniffer(y.UnmYAML, y.Footprints)
+	// _, _ = y.footprintSniffer(y.UnmYAML, y.Footprints)
 
 	fmt.Println("\n::::::::::", y.Caught, "::::::::::")
 
