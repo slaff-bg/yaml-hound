@@ -1,46 +1,50 @@
 package yamlhound
 
-import "fmt"
+import (
+	"fmt"
+)
 
-func (y *YAMLTracer) footprintSniffer(yum map[string]interface{}, yfp []string) (map[string]interface{}, bool) {
-	for yfpK, yfpV := range yfp {
+// The function traverses the parsed YAML file and looks for a match against the
+// supplied key. Returns the first match found.
+// If more than one key is passed, the function looks for an exact match of the
+// sequence in the YAML tree.
+//
+// yum - parsed YAML file
+// yfp - the slice contains the search key. The part contains the search key or
+// the exact match of the sequence keys (if more than one key is supplied).
+// fid - whether to follow the index in-depth or not. (
+//
+//	true - trace in-depth
+//	false - only trace for a matching key on the first YAML level (does not extend to sub-levels)
+//
+// )
+func (y *YAMLTracer) footprintSniffer(yum map[string]interface{}, yfp []string, fid bool) (map[string]interface{}, bool) {
+	y.Found = false
+fOut:
+	for _, yfpV := range yfp {
 		for yumK, yumV := range yum {
-			// if fmt.Sprintf("%T", yumV) == "map[string]interface {}" {
-			// if yumK == yfpV {
-
-			// }
-			// res, ok := y.footprintSniffer(yumV.(map[string]interface{}), yfp[0:])
-			// if ok {
-			// 	break
-			// 	return res, true
-			// }
-			// return map[string]interface{}{}, false
-			// continue
-			// }
-
-			// if yumK == yfpV {
-			// 	if yfpK+1 == len(yfp) {
-			// 		y.Caught = yumV
-			// 		y.Found = true
-			// 		return map[string]interface{}{}, true
-			// 	}
-			// }
-
-			// return map[string]interface{}{}, false
-
-			if yumK == yfpV {
-				if fmt.Sprintf("%T", yumV) == "map[string]interface {}" {
-					//
+			if yfpV == yumK {
+				if fmt.Sprintf("%T", yumV) != "map[string]interface {}" {
+					y.Caught, y.Found = yumV, true
+					break fOut
 				}
 
-				if yfpK+1 == len(yfp) {
-					y.Caught = yumV
-					y.Found = true
-					return map[string]interface{}{}, true
+				if len(yfp)-1 > 0 {
+					y.footprintSniffer(yumV.(map[string]interface{}), yfp[1:], false)
+				}
+
+				break fOut
+			}
+
+			if fid && fmt.Sprintf("%T", yumV) == "map[string]interface {}" {
+				if _, ok := y.footprintSniffer(yumV.(map[string]interface{}), yfp, true); ok {
+					break fOut
 				}
 			}
 		}
+
+		break fOut
 	}
 
-	return map[string]interface{}{}, false
+	return map[string]interface{}{}, y.Found
 }

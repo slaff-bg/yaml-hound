@@ -1,6 +1,7 @@
 package yamlhound
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -8,32 +9,75 @@ import (
 )
 
 func TestFootprintSniffer(t *testing.T) {
-	yt := YAMLTracer{}
-	// yt.Footprints = append(yt.Footprints, "version")
-	yt.Footprints = append(yt.Footprints, []string{"omnivores", "chickens"}...)
-	// yt.Footprints = append(yt.Footprints, []string{"fast-food", "chickens"}...)
-	// yt.Footprints = append(yt.Footprints, []string{"foo", "bar"}...)
-	// test2.yaml
-	// yt.Footprints = append(yt.Footprints, []string{"third", "fourth"}...)
-	// yt.Footprints = append(yt.Footprints, []string{"second", "third", "fourth"}...)
-
-	if err := yamlReader("test-stuff/test.yaml", &yt.UnmYAML); err != nil {
+	if err := yamlReader("test-stuff/test.yaml", &fRead); err != nil {
 		t.Errorf("Read Conf: %v", err)
 		return
 	}
 
-	// yt.footprintSniffer(yt.UnmYAML, []string{"second", "third", "fourth"})
-	// fmt.Printf("\n\nRESP ::::::: %v\n\n", yt.Caught)
+	tests := []ts{
+		{YAMLTracer{fRead, []string{"version"}, "", true}, "Sample scenario 1 (first level)", nil},
 
-	if err := yt.FootprintSniffer(); err != nil {
-		t.Error(err.Error())
+		// Returns <nil> because no such key is found or the key is part of a
+		// structure (with no specific value).
+		{YAMLTracer{fRead, []string{"food"}, "", true}, nil, nil},
+
+		{YAMLTracer{fRead, []string{"vegetables"}, "", true}, []interface{}{"tomato", "cucumber"}, nil},
+
+		// This test case covers the scenario where we have a specified key (or
+		// sequence of keys) that is contained twice in the YAML file. Since a
+		// map (map[string]interface{}) is handled, the traversal sequence
+		// cannot be predicted during an iteration. That is why we use the DPO
+		// (Different Possible Outcomes) when checking.
+		{YAMLTracer{fRead, []string{"herbivores"}, "", true}, "", []string{"deer", "cow"}},
+
+		{YAMLTracer{fRead, []string{"config", "herbivores"}, "", true}, "deer", nil},
+		{YAMLTracer{fRead, []string{"food", "herbivores"}, "", true}, "cow", nil},
+
+		{YAMLTracer{fRead, []string{"config", "omnivores", "chickens"}, "", true}, "Brown Leghorn", nil},
+		{YAMLTracer{fRead, []string{"config", "predators", "terrestrial"}, "", true}, []interface{}{"lion", "tiger", "polar bear", "wolf"}, nil},
+		{YAMLTracer{fRead, []string{"predators", "amphibians"}, "", true}, "Saltwater crocodile", nil},
+
+		{YAMLTracer{fRead, []string{"omnivores", "chickens"}, "", true}, "Brown Leghorn", nil},
+		{YAMLTracer{fRead, []string{"fast-food", "chickens"}, "", true}, []interface{}{"KFC", "Chick-fil-A", "Popeyes"}, nil},
+		{YAMLTracer{fRead, []string{"desserts", "chickens"}, "", true}, "Sex in a Pan", nil},
 	}
-	// fmt.Printf("\n\nRESP ::::::: %v\n\n", yt.Caught)
 
-	// fmt.Println(yt.UnmYAML)
-	// fmt.Println(yt.Caught)
+	for _, tc := range tests {
+		t.Run(fmt.Sprintf("%v", tc.yt.Footprints), func(t *testing.T) {
+			tc.yt.FootprintSniffer()
+
+			if tc.dpo != nil {
+				for _, v := range tc.dpo {
+					if v == tc.yt.Caught {
+						return
+					}
+				}
+
+				t.Errorf("\nwant one of these[%v] / got[%v]\n", tc.dpo, tc.yt.Caught)
+			}
+
+			if tc.expect == nil {
+				if tc.yt.Caught != "" {
+					t.Errorf("\nwant[%v] / got[%v]\n", "", tc.yt.Caught)
+				}
+			} else if fmt.Sprintf("%T", tc.yt.Caught) == "[]interface {}" {
+				ci := tc.yt.Caught.([]interface{})
+				ei := tc.expect.([]interface{})
+				for k, v := range ci {
+					if v != ei[k] {
+						t.Errorf("\nwant[%v] / got[%v]\n", ei[k], v)
+					}
+				}
+			} else {
+				if tc.yt.Caught.(string) != tc.expect.(string) {
+					t.Errorf("\nwant[%v] / got[%v]\n", tc.expect, tc.yt.Caught)
+				}
+			}
+		})
+	}
 }
 
+// Help function for the execution of the tests.
 func yamlReader(f string, c *map[string]interface{}) error {
 	yamlFile, err := os.ReadFile(f)
 	if err != nil {
