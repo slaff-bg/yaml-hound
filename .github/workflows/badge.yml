@@ -1,9 +1,0 @@
-- name: "Create Awesome Badge"
-  uses: "slaff-bg/yaml-hound"
-  with:
-    auth: ${{ secrets.YAMLHOUND }}
-    gistID: 0fdaa350d0428e1801a1a3f9d9e9ca98
-    filename: test.json
-    label: Hello
-    message: World
-    color: orange
