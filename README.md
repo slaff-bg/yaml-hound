@@ -5,8 +5,6 @@ YAML files.
 
 [![Code coverage][shield-coverage]](#)
 [![MIT licensed][shield-license]](#)
-![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/slaff-bg/0fdaa350d0428e1801a1a3f9d9e9ca98/raw/fb2f6386d1d38a4b863f4a239b64de64c0cdc92a/test.json)
-![badge2](https://img.shields.io/nycrc/slaff-bg/yaml-hound)
 
 
 ## What is it? ##
