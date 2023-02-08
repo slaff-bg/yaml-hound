@@ -5,7 +5,7 @@ YAML files.
 
 [![Code coverage][shield-coverage]](#)
 [![MIT licensed][shield-license]](#)
-![badge](https://gist.githubusercontent.com/slaff-bg/0fdaa350d0428e1801a1a3f9d9e9ca98/raw/3fac59b83e1eef9cf7936c441451584b0e464c8b/test.json)
+[![badge][test.json]](https://gist.githubusercontent.com/slaff-bg/0fdaa350d0428e1801a1a3f9d9e9ca98/raw/3fac59b83e1eef9cf7936c441451584b0e464c8b/test.json)
 
 
 ## What is it? ##
