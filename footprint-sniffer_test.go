@@ -81,3 +81,74 @@ func TestPrivateFunctionFootprintSniffer(t *testing.T) {
 		})
 	}
 }
+
+// Benchmarks
+
+func BenchmarkFirstLvlPrivateFunctionFootprintSniffer(b *testing.B) {
+	if err := yamlReader("test-stuff/test.yaml", &fRead); err != nil {
+		b.Errorf("Read Conf: %v", err)
+		return
+	}
+
+	tests := []YAMLTracer{
+		{fRead, []string{"version"}, "", true},
+		{fRead, []string{"vegetables"}, "", true},
+	}
+
+	b.ResetTimer()
+	for _, tc := range tests {
+		b.Run(fmt.Sprintf("%v", tc.Footprints), func(b *testing.B) {
+			b.StartTimer()
+			for i := 0; i < b.N; i++ {
+				tc.footprintSniffer(tc.UnmYAML, tc.Footprints, true)
+			}
+			b.StopTimer()
+		})
+	}
+}
+
+func BenchmarkSecondLvlPrivateFunctionFootprintSniffer(b *testing.B) {
+	if err := yamlReader("test-stuff/test.yaml", &fRead); err != nil {
+		b.Errorf("Read Conf: %v", err)
+		return
+	}
+
+	tests := []YAMLTracer{
+		{fRead, []string{"herbivores"}, "", true},
+		{fRead, []string{"omnivores"}, "", true},
+	}
+
+	b.ResetTimer()
+	for _, tc := range tests {
+		b.Run(fmt.Sprintf("%v", tc.Footprints), func(b *testing.B) {
+			b.StartTimer()
+			for i := 0; i < b.N; i++ {
+				tc.footprintSniffer(tc.UnmYAML, tc.Footprints, true)
+			}
+			b.StopTimer()
+		})
+	}
+}
+
+func BenchmarkTwoKeysInDepthPrivateFunctionFootprintSniffer(b *testing.B) {
+	if err := yamlReader("test-stuff/test.yaml", &fRead); err != nil {
+		b.Errorf("Read Conf: %v", err)
+		return
+	}
+
+	tests := []YAMLTracer{
+		{fRead, []string{"flying", "eagles"}, "", true},
+		{fRead, []string{"omnivores", "chickens"}, "", true},
+	}
+
+	b.ResetTimer()
+	for _, tc := range tests {
+		b.Run(fmt.Sprintf("%v", tc.Footprints), func(b *testing.B) {
+			b.StartTimer()
+			for i := 0; i < b.N; i++ {
+				tc.footprintSniffer(tc.UnmYAML, tc.Footprints, true)
+			}
+			b.StopTimer()
+		})
+	}
+}
