@@ -14,7 +14,7 @@ func TestFootprintSniffer(t *testing.T) {
 		return
 	}
 
-	tests := []ts{
+	tests := []tfs{
 		{YAMLTracer{fRead, []string{"version"}, "", true}, "Sample scenario 1 (first level)", nil},
 
 		// Returns <nil> because no such key is found or the key is part of a
@@ -77,7 +77,46 @@ func TestFootprintSniffer(t *testing.T) {
 	}
 }
 
-// Help function for the execution of the tests.
+func TestFirstLevelKeys(t *testing.T) {
+	yk := YAMLKeys{}
+	if err := yamlReader("test-stuff/test.yaml", &yk.UnmYAML); err != nil {
+		t.Errorf("Read Conf: %v", err)
+		return
+	}
+
+	tc := []string{"vegetables", "version", "config", "food"}
+	yk.FirstLevelKeys()
+
+	for _, vyk := range yk.Caught {
+		t.Run(fmt.Sprintf("%v", vyk), func(t *testing.T) {
+			for _, vtc := range tc {
+				if vyk == vtc {
+					return
+				}
+			}
+			t.Errorf("\nKey (%v) is not part of slice (%v)\n", vyk, tc)
+		})
+	}
+}
+
+func BenchmarkFirstLevelKeys(b *testing.B) {
+	yk := YAMLKeys{}
+	if err := yamlReader("test-stuff/test.yaml", &yk.UnmYAML); err != nil {
+		b.Errorf("Read Conf: %v", err)
+		return
+	}
+
+	b.ResetTimer()
+	b.Run(fmt.Sprint("FirstLevelKeys benchmark"), func(b *testing.B) {
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			yk.FirstLevelKeys()
+		}
+		b.StopTimer()
+	})
+}
+
+// yamlReader is a helper function for the execution of the tests.
 func yamlReader(f string, c *map[string]interface{}) error {
 	yamlFile, err := os.ReadFile(f)
 	if err != nil {

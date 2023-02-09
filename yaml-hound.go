@@ -5,8 +5,8 @@ import (
 	"errors"
 )
 
-// Struct properties UnmYAML and Footprints must be defined before the function
-// is executed: UnmYAML and Footprints.
+// Struct properties UnmYAML and Footprints must be defined before the
+// FootprintSniffer function is executed.
 //
 // The response after the function is executed will be found in the following
 // properties: Caught and Found.
@@ -30,4 +30,25 @@ func (y *YAMLTracer) FootprintSniffer() error {
 	_, _ = y.footprintSniffer(y.UnmYAML, y.Footprints, true)
 
 	return nil
+}
+
+// The YAMLKeys.UnmYAML structure property must be defined before the
+// FirstLevelKeys function is executed.
+type YAMLKeys struct {
+	UnmYAML map[string]interface{} // unmarshalled YAML file
+	Caught  []string               // contains the values of the search keys by level after processing
+	Found   bool                   // whether any key was found or not (it will be FALSE if the YAML document is empty)
+}
+
+// FirstLevelKeys outputs the names of the first-level keys from the parsed YAML
+// file. If the file is empty YAMLKeys.Found will be FALSE, and YAMLKeys.Caught
+// will be an empty slice.
+func (y *YAMLKeys) FirstLevelKeys() {
+	for k := range y.UnmYAML {
+		y.Caught = append(y.Caught, k)
+	}
+
+	if len(y.Caught) > 0 {
+		y.Found = true
+	}
 }
