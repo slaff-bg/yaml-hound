@@ -15,6 +15,7 @@ fmt.Println("That's what you're looking for:", yh.Caught)
 [![MIT licensed][shield-license]](#)
 [![Top Language][top-language]](#)
 [![Go Version][go-version]](#)
+[![Go Reference](https://pkg.go.dev/badge/github.com/slaff-bg/yaml-hound.svg)](https://pkg.go.dev/github.com/slaff-bg/yaml-hound)
 
 
 ## What is it? ##

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-type ts struct {
+type tfs struct {
 	yt     YAMLTracer
 	expect interface{}
 	dpo    []string // Different Possible Outcomes.
@@ -19,7 +19,7 @@ func TestPrivateFunctionFootprintSniffer(t *testing.T) {
 		return
 	}
 
-	tests := []ts{
+	tests := []tfs{
 		{YAMLTracer{fRead, []string{"version"}, "", true}, "Sample scenario 1 (first level)", nil},
 
 		// Returns <nil> because no such key is found or the key is part of a
