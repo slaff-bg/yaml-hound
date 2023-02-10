@@ -1,5 +1,5 @@
 # YAML Hound #
-The package covering the need for non-standard approaches when working with YAML files.
+The package covers uncommon needs when working with YAML files.
 
 ```go
 yh := yamlhound.YAMLTracer{}
@@ -25,7 +25,7 @@ Package working with unknown (dynamic generated) YAML structures.
 
 ## Why do we need it? ##
 
-Sometimes it is necessary to handle frequently modified YAML structures. This is common in a rapidly growing system where the configuration file structure changes periodically. These changes lead to struct-types changes in our Go code. Therefore, this package offers an interim solution until the final finalization. of the model YAML file.
+Sometimes it is necessary to handle frequently modified YAML structures. This is common in a rapidly growing system where the configuration YAML file structure changes periodically. These changes lead to struct-types changes in our Go code. Therefore, this package offers an interim solution until the structure finalization of the YAML file.
 
 
 ## Table of Contents ##
@@ -40,17 +40,29 @@ Sometimes it is necessary to handle frequently modified YAML structures. This is
 ## Features ##
 
 - [X] Retrieves a value by key or series of known keys from an unknown dynamic YAML structure.
-- [ ] N-level keys ripper.
+- [x] Retrieve the first-level keys.
+- [x] Retrieve the next-level subkeys of a given key.
+- [x] Retrieve the next-level subkeys of a given subset of keys in exact order.
 - [ ] etc.
 
 
-## Requirements ##
+## Requirements/Dependencies ##
 
 - [Golang](https://go.dev/dl/) version go1.20
 - [gopkg.in/yaml](https://gopkg.in/yaml.v3) version v3
 
-&#x1F4CC; &nbsp; *<sub>Versions reflect the current state of the used
-technologies.</sub>*
+
+>__NOTE__
+>
+> The package should also work with version go1.19, but it was developed under version go1.20, and we still have no tests with the previous one.
+
+>__NOTE__
+>
+> To get the expected results, you should use V.3 of the
+> [gopkg.in/yaml](https://gopkg.in/yaml.v3) package to unmarshalling the XML
+> file. Do not use version V.2 or earlier of this package.
+>
+> Check the [tests](https://github.com/slaff-bg/yaml-hound/blob/main/yaml-hound_test.go) for more technical details.
 
 
 ## Usage ##
@@ -161,15 +173,6 @@ func yamlReader(f string, c *map[string]interface{}) error {
 	return nil
 }
 ```
-
-
->__NOTE__
->
-> To get the expected results, you should use V.3 of the
-> [gopkg.in/yaml](https://gopkg.in/yaml.v3) package to unmarshalling the XML
-> file. Do not use version V.2 or earlier of this package.
->
-> Check the [tests](https://github.com/slaff-bg/yaml-hound/blob/main/yaml-hound_test.go) for more details.
 
 
 
