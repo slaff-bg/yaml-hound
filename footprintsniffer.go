@@ -4,12 +4,12 @@ import (
 	"fmt"
 )
 
-// The function traverses the parsed YAML file and looks for a match against the
-// supplied key. Returns the first match found.
+// The function traverses the unmarshalled YAML file and looks for a match
+// against the supplied key. Returns the first match found.
 // If more than one key is passed, the function looks for an exact match of the
 // sequence in the YAML tree.
 //
-// yum - parsed YAML file
+// yum - unmarshalled YAML file
 // yfp - the slice contains the search key. The part contains the search key or
 // the exact match of the sequence keys (if more than one key is supplied).
 // fid - whether to follow the index in-depth or not. (

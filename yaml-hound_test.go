@@ -2,10 +2,7 @@ package yamlhound
 
 import (
 	"fmt"
-	"os"
 	"testing"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func TestFootprintSniffer(t *testing.T) {
@@ -77,55 +74,47 @@ func TestFootprintSniffer(t *testing.T) {
 	}
 }
 
-func TestFirstLevelKeys(t *testing.T) {
-	yk := YAMLKeys{}
-	if err := yamlReader("test-stuff/test.yaml", &yk.UnmYAML); err != nil {
+func TestKeysOfKey(t *testing.T) {
+	yt := YAMLTracer{}
+	if err := yt.KeysOfKey(); err == nil {
+		t.Errorf("NOT unmarshalled YAML, but no error was received: %v", err)
+	}
+
+	if err := yamlReader("test-stuff/test.yaml", &yt.UnmYAML); err != nil {
 		t.Errorf("Read Conf: %v", err)
 		return
 	}
 
-	tc := []string{"vegetables", "version", "config", "food"}
-	yk.FirstLevelKeys()
+	if err := yt.KeysOfKey(); err != nil {
+		t.Errorf("unmarshalled YAML but error was received: %v", err)
+	}
 
-	for _, vyk := range yk.Caught {
-		t.Run(fmt.Sprintf("%v", vyk), func(t *testing.T) {
-			for _, vtc := range tc {
-				if vyk == vtc {
+	// no YAMLTracer.Footprints are provided
+	tcResp := []string{"vegetables", "version", "config", "food"}
+	_ = yt.KeysOfKey()
+	for _, vyt := range yt.Caught.([]string) {
+		t.Run(fmt.Sprintf("KeysOfKey (firstLevelKeys): %v", vyt), func(t *testing.T) {
+			for _, vtc := range tcResp {
+				if vyt == vtc {
 					return
 				}
 			}
-			t.Errorf("\nKey (%v) is not part of slice (%v)\n", vyk, tc)
+			t.Errorf("\nKey (%v) is not part of slice (%v)\n", vyt, tcResp)
 		})
 	}
-}
 
-func BenchmarkFirstLevelKeys(b *testing.B) {
-	yk := YAMLKeys{}
-	if err := yamlReader("test-stuff/test.yaml", &yk.UnmYAML); err != nil {
-		b.Errorf("Read Conf: %v", err)
-		return
+	// YAMLTracer.Footprints are provided
+	yt.Footprints = []string{"food"}
+	tcResp = []string{"fast-food", "desserts", "herbivores", "omnivores"}
+	_ = yt.KeysOfKey()
+	for _, vyt := range yt.Caught.([]string) {
+		t.Run(fmt.Sprintf("KeysOfKey (keysOfKey): %v", vyt), func(t *testing.T) {
+			for _, vtc := range tcResp {
+				if vyt == vtc {
+					return
+				}
+			}
+			t.Errorf("\nKey (%v) is not part of slice (%v)\n", vyt, tcResp)
+		})
 	}
-
-	b.ResetTimer()
-	b.Run(fmt.Sprint("FirstLevelKeys benchmark"), func(b *testing.B) {
-		b.StartTimer()
-		for i := 0; i < b.N; i++ {
-			yk.FirstLevelKeys()
-		}
-		b.StopTimer()
-	})
-}
-
-// yamlReader is a helper function for the execution of the tests.
-func yamlReader(f string, c *map[string]interface{}) error {
-	yamlFile, err := os.ReadFile(f)
-	if err != nil {
-		return err
-	}
-
-	if err := yaml.Unmarshal([]byte(yamlFile), &c); err != nil {
-		return err
-	}
-
-	return nil
 }

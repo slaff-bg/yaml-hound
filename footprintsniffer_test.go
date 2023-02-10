@@ -5,15 +5,7 @@ import (
 	"testing"
 )
 
-type tfs struct {
-	yt     YAMLTracer
-	expect interface{}
-	dpo    []string // Different Possible Outcomes.
-}
-
-var fRead map[string]interface{}
-
-func TestPrivateFunctionFootprintSniffer(t *testing.T) {
+func TestFootprintSniffer_Unit(t *testing.T) {
 	if err := yamlReader("test-stuff/test.yaml", &fRead); err != nil {
 		t.Errorf("Read Conf: %v", err)
 		return
@@ -49,7 +41,7 @@ func TestPrivateFunctionFootprintSniffer(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(fmt.Sprintf("%v", tc.yt.Footprints), func(t *testing.T) {
-			tc.yt.footprintSniffer(tc.yt.UnmYAML, tc.yt.Footprints, true)
+			_, _ = tc.yt.footprintSniffer(tc.yt.UnmYAML, tc.yt.Footprints, true)
 
 			if tc.dpo != nil {
 				for _, v := range tc.dpo {
@@ -100,7 +92,7 @@ func BenchmarkFirstLvlPrivateFunctionFootprintSniffer(b *testing.B) {
 		b.Run(fmt.Sprintf("%v", tc.Footprints), func(b *testing.B) {
 			b.StartTimer()
 			for i := 0; i < b.N; i++ {
-				tc.footprintSniffer(tc.UnmYAML, tc.Footprints, true)
+				_, _ = tc.footprintSniffer(tc.UnmYAML, tc.Footprints, true)
 			}
 			b.StopTimer()
 		})
