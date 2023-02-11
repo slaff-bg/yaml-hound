@@ -13,10 +13,9 @@ type YAMLTracer struct {
 	Found      bool                   // whether there is any result of executing the function or not
 }
 
-// FootprintSniffer traverses the unmarshalled YAML file and looks for a match
-// against the supplied key. Returns the first match found.
-// If more than one key is provided, the function looks for an exact match of
-// the sequence in the YAML tree.
+// FootprintSniffer retrives the first found match against the provided key.
+// If more than one key is provided, the function looks for an exact match with
+// the provided set of keys.
 func (y *YAMLTracer) FootprintSniffer() error {
 	if err := y.unmarshallCheck(); err != nil {
 		return err
@@ -29,10 +28,9 @@ func (y *YAMLTracer) FootprintSniffer() error {
 	return nil
 }
 
-// KeysOfKey loops through the unmarshalled YAML file and looks for a match
-// against the supplied key. Retrieves the first-level keys of the first found
-// match with the provided key. If more than one key is provided, the function
-// looks for an exact match of the sequence in the YAML tree.
+// KeysOfKey retrieves the first-level keys of the first found match against the
+// provided key. If more than one key is provided, the function looks for an
+// exact match of the sequence in the YAML tree.
 //
 // If no YAMLTracer.Footprints are provided will collect the first-level keys of
 // the YAML structure.
