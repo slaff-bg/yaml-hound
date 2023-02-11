@@ -89,6 +89,10 @@ config:
       owls: ["Bare-legged owl", "Barn owl", "Snowy owl"]
   omnivores:
     chickens: "Brown Leghorn"
+    pigs:
+      European: [4, 7]
+      Asians: [7, 47]
+      American: [47, 84]
 
 # Sample scenario 3
 food:
@@ -97,6 +101,10 @@ food:
   desserts:
     chickens: "Sex in a Pan"
   herbivores: cow
+  omnivores:
+    pigs:
+      grilled: n/a
+      in-oven: n/a
 
 # Sample scenario 4
 vegetables:
@@ -106,6 +114,7 @@ vegetables:
 ```
 
 ```go
+// base example
 package main
 
 import (
@@ -117,46 +126,32 @@ import (
 )
 
 func main() {
-    // instance of YAMLTracer{}
-	yh := yamlhound.YAMLTracer{}
+  // instance of YAMLTracer{}
+  yh := yamlhound.YAMLTracer{}
 
-    // YAMLTracer.UnmYAML: unmarshalled YAML file
-	if err := yamlReader("path/to/your/file.yaml", &yh.UnmYAML); err != nil {
-		panic(err.Error())
-	}
+  // YAMLTracer.UnmYAML: unmarshalled YAML file
+  if err := yamlReader("path/to/your/file.yaml", &yh.UnmYAML); err != nil {
+    panic(err.Error())
+  }
 
-    // set YAMLTracer.Footprints: the search key or strict sequence
-    // of search keys
-    // 
-    // e.g. 1 returns: Sample scenario 1 (first level)
-	yh.Footprints = []string{"version"}
+  // Set YAMLTracer.Footprints: the search key or
+  // strict sequence of search keys.
+  // 
+  // e.g. 1.1.
+  // 
+  // In this case, it looks for a first-level YAML key.
+  yh.Footprints = []string{"version"}
 
-    // e.g. 2 returns: Brown Leghorn
-	// yh.Footprints = []string{"omnivores", "chickens"}
-    // e.g. 3 returns: ["KFC", "Chick-fil-A", "Popeyes"]
-	// yh.Footprints = []string{"fast-food", "chickens"}
+  // Performs the function of finding the value by the
+  // defined key (or sequence of keys).
+  if err := yh.FootprintSniffer(); err != nil {
+    panic(err.Error())
+  }
 
-    // e.g. 4 returns: <nil>
-    // Returns <nil> because no such key is found ... OR ...
-    // the key is part of a structure (with no specific value).
-	// yh.Footprints = []string{"food"}
-
-
-    // e.g. 5 returns: "deer" ... OR ... "cow"
-    // This test case covers the scenario where we have a specified key (or
-    // sequence of keys) that is contained twice in the YAML file. Since a
-    // map (map[string]interface{}) is handled, the traversal sequence
-    // cannot be predicted during an iteration. That is why we use the DPO
-    // (Different Possible Outcomes) when checking.
-	// yh.Footprints = []string{"herbivores"}
-
-	if err := yh.FootprintSniffer(); err != nil {
-		panic(err.Error())
-	}
-
-    if yh.Found {
-	    fmt.Println("That's what you're looking for:", yh.Caught)
-    }
+  // Lets us know if a value was found or not.
+  if yh.Found {
+    fmt.Println("That's what you're looking for:", yh.Caught)
+  }
 }
 
 // yamlReader read and parse YAML file.
@@ -172,6 +167,119 @@ func yamlReader(f string, c *map[string]interface{}) error {
 
 	return nil
 }
+```
+
+
+```go
+  // e.g. 1.2.
+  // 
+  // In this case, it looks for a third-level YAML key.
+  // The keys sequence provided is part of the YAML tree 
+  // nd indicates that a key belonging to a specific part
+  // of the tree sequence is being sought.
+  yh.Footprints = []string{"omnivores", "chickens"}
+  _ := yh.FootprintSniffer()
+  fmt.Println(yh.Caught) // prints: Brown Leghorn
+```
+
+```go
+  // e.g. 1.3.
+  // 
+  // Similar to the previous example, except the key
+  // is part of a different sequence.
+  yh.Footprints = []string{"fast-food", "chickens"}
+  _ := yh.FootprintSniffer()
+  fmt.Println(yh.Caught) // prints: ["KFC", "Chick-fil-A", "Popeyes"]
+```
+
+```go
+  // e.g. 1.4.
+  // 
+  // Prints <nil> because no such key is found
+  // ... OR ...
+  // the key is part of a structure (with no specific value).
+  yh.Footprints = []string{"food"}
+  _ := yh.FootprintSniffer()
+  fmt.Println(yh.Caught) // prints: <nil>
+```
+
+```go
+  // e.g. 1.5.
+  // 
+  // This test case covers the scenario where we have a
+  // specified key (or sequence of keys) that is contained
+  // twice in the YAML file.
+  // Since a map (map[string]interface{}) is handled,
+  // the traversal sequence cannot be predicted during
+  // an iteration.
+  yh.Footprints = []string{"herbivores"}
+  _ := yh.FootprintSniffer()
+  fmt.Println(yh.Caught) // prints: "deer" ... OR ... "cow"
+```
+
+```go
+  // KeysOfKey retrieves the first-level keys of the first
+  // found match against the provided key. If more than
+  // one key is provided, the function looks for an exact match
+  // of the sequence in the YAML tree.
+  //
+  // e.g. 2.1.
+  //
+  // If no YAMLTracer.Footprints are provided will collect
+  // the first-level keys of the YAML structure.
+  _ = yt.KeysOfKey()
+  fmt.Println(yh.Caught) // prints: ["vegetables", "version", "config", "food"]
+```
+
+```go
+  // e.g. 2.2.
+  //
+  // First-level key WITH sub-level.
+  yt.Footprints = []string{"food"}
+  _ = yt.KeysOfKey()
+  fmt.Println(yh.Caught) // prints: ["fast-food", "desserts", "herbivores", "omnivores"]
+```
+
+```go
+  // e.g. 2.3.
+  //
+  // Second-level key WITH sub-level.
+  yt.Footprints = []string{"predators"}
+  _ = yt.KeysOfKey()
+  fmt.Println(yh.Caught) // prints: ["amphibians", "terrestrial", "flying"]
+```
+
+```go
+  // e.g. 2.4.
+  //
+  // Second-level key WITH sub-level by using a strict key sequence.
+  yt.Footprints = []string{"config", "predators"}
+  _ = yt.KeysOfKey()
+  fmt.Println(yh.Caught) // prints: ["amphibians", "terrestrial", "flying"]
+```
+
+```go
+  // e.g. 2.5.
+  //
+  // Third-level key WITH sub-level by using a strict key sequence.
+  yt.Footprints = []string{"predators", "flying"}
+  _ = yt.KeysOfKey()
+  fmt.Println(yh.Caught) // prints: ["eagles", "vultures", "owls"]
+```
+
+```go
+  // e.g. 2.6.
+  //
+  // This test case covers the scenario where we have a specified key (or
+  // sequence of keys) that is contained twice in the YAML file. Since a
+  // map (map[string]interface{}) is handled, the traversal sequence
+  // cannot be predicted during an iteration.
+  yt.Footprints = []string{"pigs"}
+  _ = yt.KeysOfKey()
+  fmt.Println(yh.Caught)
+  // prints: ["grilled", "in-oven"]
+  // ... OR ...
+  // ["European", "Asians", "American"]
 ```
 
 
