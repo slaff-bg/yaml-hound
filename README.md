@@ -31,7 +31,7 @@ Sometimes it is necessary to handle frequently modified YAML structures. This is
 ## Table of Contents ##
 
 * [Features](#features)
-* [Requirements](#requirements)
+* [Requirements/Dependencies](#requirements/dependencies)
 * [Usage](#usage)
 * [Contributing](#contributing)
 * [License](#license)
